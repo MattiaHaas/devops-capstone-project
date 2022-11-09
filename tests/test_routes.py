@@ -149,4 +149,23 @@ class TestAccountService(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
-    # ADD YOUR TEST CASES HERE ...
+    def test_update_account(self):
+        """It should Update an existing Account"""
+        # create an Account to update
+        test_account = AccountFactory()
+        response = self.client.post(BASE_URL, json=test_account.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_account = response.get_json()
+        new_account["name"] = "Mattia Haas"
+        response = self.client.put(f"{BASE_URL}/{new_account['id']}", json=new_account)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        updated_account = response.get_json()
+        self.assertEqual(updated_account["name"], "Mattia Haas")
+
+    def test_update_non_existing_account(self):
+        """It should Update an existing Account"""
+        test_account = AccountFactory()
+        response = self.client.put(f"{BASE_URL}/0", json=test_account.serialize())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND )
